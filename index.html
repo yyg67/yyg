@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>我的个人清单</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:微软雅黑}
+        body{background:#f5f5f5;padding:40px max(20px,calc(50% - 400px))}
+        .box{background:#fff;padding:30px;border-radius:12px;box-shadow:0 2px 10px #ddd}
+        h1{text-align:center;color:#333;margin-bottom:20px}
+        .input-area{display:flex;gap:8px;margin-bottom:20px}
+        #input{flex:1;padding:10px 14px;border:1px solid #ccc;border-radius:6px;font-size:16px}
+        #add{padding:10px 20px;background:#4285f4;color:white;border:none;border-radius:6px;cursor:pointer}
+        .item{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid #eee}
+        .del{background:#f44336;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer}
+    </style>
+</head>
+<body>
+<div class="box">
+    <h1>个人待办清单</h1>
+    <div class="input-area">
+        <input type="text" id="input" placeholder="输入要做的事，回车添加">
+        <button id="add">添加</button>
+    </div>
+    <div id="list"></div>
+</div>
+
+<script>
+    const input = document.getElementById('input')
+    const list = document.getElementById('list')
+    const addBtn = document.getElementById('add')
+
+    // 读取本地存储的清单
+    function loadList(){
+        let data = JSON.parse(localStorage.getItem('todo')) || []
+        data.forEach(text => createItem(text))
+    }
+
+    // 创建一条清单
+    function createItem(text){
+        const div = document.createElement('div')
+        div.className = 'item'
+        div.innerHTML = `
+            <span>${text}</span>
+            <button class="del">删除</button>
+        `
+        list.appendChild(div)
+        div.querySelector('.del').onclick = ()=>{
+            div.remove()
+            saveData()
+        }
+    }
+
+    // 保存到浏览器本地
+    function saveData(){
+        let arr = []
+        document.querySelectorAll('.item span').forEach(span=>arr.push(span.innerText))
+        localStorage.setItem('todo', JSON.stringify(arr))
+    }
+
+    // 添加事件
+    function addTodo(){
+        let val = input.value.trim()
+        if(!val) return
+        createItem(val)
+        saveData()
+        input.value = ''
+    }
+    addBtn.onclick = addTodo
+    input.onkeydown = e=>e.key==='Enter' && addTodo()
+
+    loadList()
+</script>
+</body>
+</html>
